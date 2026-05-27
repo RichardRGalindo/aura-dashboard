@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AURA</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--g9:#111;--g8:#1c1c1e;--g7:#2a2a2e;--g6:#3a3a3f;--g5:#5a5a60;--g4:#8a8a90;--g3:#b0b0b8;--g2:#d8d8e0;--g1:#f0f0f5;--g0:#fafafa;
+--green:#22c55e;--green2:#16a34a;--green3:#dcfce7;--green4:#bbf7d0;
+--amber:#f59e0b;--amber2:#fef3c7;--red:#ef4444;--red2:#fee2e2;--blue:#3b82f6;--blue2:#dbeafe;
+--card:#fff;--border:rgba(0,0,0,0.07);
+--r8:8px;--r12:12px;--r16:16px;--r20:20px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:#f5f5f7;color:var(--g9);font-size:13px;line-height:1.5;overflow:hidden}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0f1e14 0%,#111 50%,#0a1a2e 100%);display:flex;align-items:center;justify-content:center;z-index:9999;animation:fadeIn .4s ease}
+.login-box{width:380px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:40px 36px;backdrop-filter:blur(20px)}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:32px;justify-content:center}
+.login-logo-dot{width:36px;height:36px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;box-shadow:0 0 24px rgba(34,197,94,.4)}
+.login-logo-text{font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.login-tagline{font-size:12px;color:rgba(255,255,255,.3);text-align:center;margin-top:-24px;margin-bottom:28px;letter-spacing:.3px}
+.login-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.login-input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--r8);padding:12px 14px;font-size:13px;color:#fff;outline:none;transition:border-color .2s;margin-bottom:14px;font-family:inherit}
+.login-input:focus{border-color:var(--green)}
+.login-input::placeholder{color:rgba(255,255,255,.2)}
+.login-btn{width:100%;background:var(--green);color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;margin-top:4px;letter-spacing:-.2px}
+.login-btn:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 8px 20px rgba(34,197,94,.3)}
+.login-btn:active{transform:translateY(0)}
+.login-error{background:var(--red2);border:1px solid #fca5a5;color:#991b1b;border-radius:var(--r8);padding:10px 14px;font-size:12px;font-weight:500;margin-bottom:14px;display:none;animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.login-footer{text-align:center;font-size:11px;color:rgba(255,255,255,.2);margin-top:20px}
+.pw-wrap{position:relative}
+.pw-wrap .login-input{padding-right:44px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-65%);background:none;border:none;cursor:pointer;font-size:16px;color:rgba(255,255,255,.3);transition:color .15s;padding:4px}
+.pw-eye:hover{color:rgba(255,255,255,.6)}
+.login-dots{display:flex;justify-content:center;gap:6px;margin-top:20px}
+.login-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.15)}
+.login-dot.act{background:var(--green)}
+
+/* ── SHELL ── */
+.shell{display:flex;height:100vh;background:#f5f5f7;overflow:hidden;position:relative}
+#app-screen{display:none;width:100%;height:100%}
+
+/* ── SIDEBAR ── */
+.sidebar{width:210px;background:var(--g9);display:flex;flex-direction:column;flex-shrink:0}
+.sb-top{padding:18px 16px 12px}
+.sb-logo{display:flex;align-items:center;gap:7px;margin-bottom:18px}
+.sb-logo-dot{width:22px;height:22px;background:var(--green);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-logo-text{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.sb-rest{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border-radius:var(--r8);padding:8px 10px;margin-bottom:8px}
+.sb-rest-av{width:24px;height:24px;border-radius:6px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-rest-name{font-size:12px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-rest-sub{font-size:10px;color:rgba(255,255,255,.35)}
+.sb-pulse{width:5px;height:5px;border-radius:50%;background:var(--green);margin-left:auto;flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sb-section{font-size:10px;font-weight:600;color:rgba(255,255,255,.25);letter-spacing:.8px;text-transform:uppercase;padding:12px 16px 4px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 12px;margin:1px 8px;border-radius:var(--r8);cursor:pointer;transition:all .15s;color:rgba(255,255,255,.45);font-size:12px;font-weight:500}
+.sb-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)}
+.sb-item.active{background:rgba(255,255,255,.11);color:#fff}
+.sb-item.active .sb-icon{opacity:1}
+.sb-icon{font-size:14px;width:16px;text-align:center;opacity:.6}
+.sb-badge{margin-left:auto;background:var(--green);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:20px;min-width:16px;text-align:center}
+.sb-bottom{margin-top:auto;padding:12px 8px 14px}
+.sb-user{display:flex;align-items:center;gap:8px;padding:8px;border-radius:var(--r8);cursor:pointer;transition:background .15s}
+.sb-user:hover{background:rgba(255,255,255,.07)}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-uname{font-size:12px;font-weight:500;color:rgba(255,255,255,.7)}
+.sb-plan{font-size:10px;color:rgba(255,255,255,.3)}
+.logout-btn{width:100%;margin-top:6px;background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.2);border-radius:var(--r8);padding:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.logout-btn:hover{background:rgba(239,68,68,.2)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:var(--g0);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:50}
+.topbar-title{font-size:14px;font-weight:600;color:var(--g9);letter-spacing:-.2px}
+.topbar-sub{font-size:11px;color:var(--g4);display:flex;align-items:center;gap:5px;margin-top:1px}
+.live-pill{display:inline-flex;align-items:center;gap:4px;background:var(--green3);color:var(--green2);font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.tb-btn{background:var(--green);color:#fff;border:none;border-radius:var(--r8);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.tb-btn:hover{background:var(--green2);transform:translateY(-1px)}
+.tb-btn-out{background:transparent;color:var(--g6);border:1px solid var(--border);border-radius:var(--r8);padding:7px 12px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.tb-btn-out:hover{background:var(--g1);border-color:var(--g3)}
+.notif-btn{width:32px;height:32px;border-radius:var(--r8);background:var(--g1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;font-size:16px;transition:background .15s}
+.notif-btn:hover{background:var(--g2)}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:2px solid var(--g0);transition:opacity .3s}
+.notif-panel{position:absolute;top:56px;right:20px;width:340px;background:var(--card);border:1px solid var(--border);border-radius:var(--r16);box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:200;animation:fadeDown .2s ease;overflow:hidden}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.notif-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--border)}
+.notif-title{font-size:13px;font-weight:700;color:var(--g9)}
+.notif-clear{font-size:11px;color:var(--blue);cursor:pointer;background:none;border:none;font-family:inherit}
+.notif-clear:hover{text-decoration:underline}
+.notif-item{display:flex;align-items:flex-start;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;position:relative}
+.notif-item:hover{background:var(--g1)}
+.notif-item.unread::before{content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:var(--green)}
+.notif-item-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.notif-item-text{font-size:12px;color:var(--g9);line-height:1.4;font-weight:500}
+.notif-item-time{font-size:10px;color:var(--g4);margin-top:2px}
+.notif-empty{padding:24px;text-align:center;font-size:12px;color:var(--g4)}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:18px 20px 20px;display:flex;flex-direction:column;gap:14px}
+.page{display:none;flex-direction:column;gap:14px;animation:fadeUp .25s ease}
+.page.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ── CARDS / METRICS ── */
+.card{background:var(--card);border-radius:var(--r12);border:1px solid var(--border);padding:16px}
+.card-title{font-size:13px;font-weight:600;color:var(--g9);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.card-title-sub{font-size:11px;color:var(--g4);font-weight:400}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.metric{background:var(--card);border-radius:var(--r12);border:1px solid var(--border);padding:14px 16px;transition:all .2s;cursor:default}
+.metric:hover{border-color:var(--green);transform:translateY(-2px)}
+.metric-label{font-size:10px;font-weight:600;color:var(--g4);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.metric-val{font-size:22px;font-weight:700;color:var(--g9);letter-spacing:-.8px;line-height:1}
+.metric-change{font-size:11px;margin-top:5px}
+.up{color:var(--green2)}.dn{color:var(--red)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.alert{padding:10px 14px;border-radius:var(--r8);font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .2s}
+.alert:hover{opacity:.85;transform:translateX(2px)}
+.a-warn{background:var(--amber2);color:#92400e;border:1px solid #fcd34d}
+.a-err{background:var(--red2);color:#991b1b;border:1px solid #fca5a5}
+.a-ok{background:var(--green3);color:var(--green2);border:1px solid var(--green4)}
+.a-info{background:var(--blue2);color:#1d4ed8;border:1px solid #93c5fd}
+.bars{display:flex;align-items:flex-end;gap:5px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;transition:height .5s;cursor:pointer;min-height:4px}
+.bar-fill:hover{filter:brightness(1.1)}
+.bar-label{font-size:9px;color:var(--g4);text-align:center}
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kol{background:var(--g1);border-radius:var(--r12);padding:12px;min-height:280px}
+.kol-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kol-title{font-size:11px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:5px}
+.kol-dot{width:7px;height:7px;border-radius:50%}
+.kol-count{font-size:10px;font-weight:700;background:var(--card);border:1px solid var(--border);padding:1px 6px;border-radius:20px;color:var(--g5)}
+.order-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r8);padding:11px;margin-bottom:7px;cursor:pointer;transition:all .15s}
+.order-card:hover{border-color:var(--green);box-shadow:0 4px 12px rgba(34,197,94,.1);transform:translateY(-1px)}
+.order-num{font-size:10px;font-weight:700;color:var(--g4);margin-bottom:3px;display:flex;align-items:center;justify-content:space-between}
+.order-items{font-size:12px;font-weight:600;color:var(--g9);margin-bottom:7px;line-height:1.3}
+.order-foot{display:flex;align-items:center;justify-content:space-between}
+.order-price{font-size:13px;font-weight:700;color:var(--g9)}
+.order-time{font-size:10px;color:var(--g4)}
+.ch-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
+.ch-if{background:#ffe4e4;color:#b91c1c}.ch-wh{background:#dcfce7;color:#15803d}.ch-ms{background:var(--blue2);color:#1d4ed8}
+.add-btn{width:100%;border:1.5px dashed var(--g2);background:transparent;border-radius:var(--r8);padding:10px;font-size:11px;color:var(--g3);cursor:pointer;transition:all .2s;margin-top:4px;font-family:inherit}
+.add-btn:hover{border-color:var(--green);color:var(--green);background:var(--green3)}
+.stock-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.stock-row:last-child{border:none}
+.stock-bar-w{width:100px;margin:0 12px}
+.stock-bar-bg{height:4px;border-radius:20px;background:var(--g2)}
+.stock-bar-f{height:4px;border-radius:20px;transition:width .5s}
+.stock-qty{font-size:12px;font-weight:600;color:var(--g7);min-width:55px;text-align:right}
+.badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;min-width:55px;text-align:center}
+.b-ok{background:var(--green3);color:var(--green2)}
+.b-low{background:var(--amber2);color:#92400e}
+.b-crit{background:var(--red2);color:#991b1b}
+.tabs{display:flex;gap:2px;background:var(--g1);border-radius:var(--r8);padding:2px;width:fit-content;margin-bottom:12px}
+.tab{padding:5px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;color:var(--g4);transition:all .15s}
+.tab.on{background:var(--card);color:var(--g9);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.team-row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--r8);transition:background .15s;cursor:pointer}
+.team-row:hover{background:var(--g1)}
+.team-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.team-name{font-size:13px;font-weight:600;color:var(--g9)}
+.team-role{font-size:11px;color:var(--g4)}
+.team-bar-bg{height:3px;background:var(--g2);border-radius:20px;width:80px}
+.team-bar-f{height:3px;background:var(--green);border-radius:20px;transition:width .8s}
+.crm-row{display:flex;align-items:center;gap:10px;padding:9px;border-radius:var(--r8);transition:background .15s;cursor:pointer}
+.crm-row:hover{background:var(--g1)}
+.crm-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.vip-badge{font-size:9px;font-weight:700;background:linear-gradient(90deg,#f59e0b,#ef4444);color:#fff;padding:1px 6px;border-radius:20px;margin-left:4px;vertical-align:middle}
+.aura-msg{background:var(--green3);border:1px solid var(--green4);border-radius:4px var(--r12) var(--r12) var(--r12);padding:12px 14px;max-width:88%}
+.aura-msg p{font-size:12px;color:#14532d;line-height:1.6}
+.aura-tag{font-size:10px;font-weight:700;color:var(--green2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.aura-insight{background:var(--card);border:1px solid var(--border);border-radius:var(--r8);padding:10px;margin-top:8px;display:flex;align-items:flex-start;gap:8px}
+.aura-insight-val{font-size:15px;font-weight:700;color:var(--g9);margin-bottom:2px}
+.aura-insight-body{font-size:11px;color:var(--g5);line-height:1.5}
+.user-bubble{text-align:right;margin:4px 0}
+.user-bubble span{display:inline-block;background:var(--g9);color:#fff;padding:9px 13px;border-radius:var(--r12) var(--r12) 4px var(--r12);font-size:12px;max-width:80%;text-align:left}
+.aura-input-row{display:flex;gap:8px;margin-top:10px}
+.aura-input{flex:1;border:1px solid var(--border);border-radius:var(--r8);padding:10px 13px;font-size:12px;color:var(--g9);outline:none;transition:border-color .15s;background:var(--card);font-family:inherit}
+.aura-input:focus{border-color:var(--green)}
+.aura-send{background:var(--green);color:#fff;border:none;border-radius:var(--r8);padding:10px 16px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap}
+.aura-send:hover{background:var(--green2)}
+.aura-chat-box{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--green4);animation:blink 1.2s infinite;display:inline-block}
+.typing-dot:nth-child(2){animation-delay:.2s}.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+.sug-btn{background:var(--g1);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:500;color:var(--g6);cursor:pointer;transition:all .15s;font-family:inherit}
+.sug-btn:hover{background:var(--green3);border-color:var(--green4);color:var(--green2)}
+.comp-map{background:linear-gradient(135deg,#eef7ff,#f0fdf4);border:1px solid var(--border);border-radius:var(--r12);height:180px;position:relative;overflow:hidden;margin-bottom:12px}
+.map-ring{position:absolute;top:50%;left:50%;border-radius:50%;border:1px dashed rgba(0,0,0,.08)}
+.r1{width:120px;height:120px;margin:-60px 0 0 -60px}
+.r2{width:220px;height:220px;margin:-110px 0 0 -110px}
+.map-you{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;text-align:center}
+.map-you-dot{width:16px;height:16px;border-radius:50%;background:var(--green);border:3px solid #fff;box-shadow:0 0 0 8px rgba(34,197,94,.15),0 0 0 16px rgba(34,197,94,.06);margin:0 auto}
+.map-label{font-size:9px;font-weight:700;color:var(--green2);margin-top:3px;white-space:nowrap}
+.comp-pin{position:absolute;cursor:pointer;transition:transform .2s;z-index:3}
+.comp-pin:hover{transform:scale(1.3)}
+.comp-pin-dot{width:10px;height:10px;border-radius:50%;border:2px solid #fff}
+.comp-tip{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:var(--g9);color:#fff;font-size:9px;white-space:nowrap;padding:3px 7px;border-radius:4px;opacity:0;pointer-events:none;transition:opacity .2s}
+.comp-pin:hover .comp-tip{opacity:1}
+.fin-big{font-size:32px;font-weight:700;color:var(--g9);letter-spacing:-1.5px;line-height:1}
+.fin-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)}
+.fin-row:last-child{border:none}
+.ticker-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r8);transition:background .15s;cursor:pointer}
+.ticker-row:hover{background:var(--g1)}
+.ticker-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* ── USER MANAGEMENT PAGE ── */
+.user-table{width:100%;border-collapse:collapse}
+.user-table th{font-size:10px;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;text-align:left;border-bottom:2px solid var(--border)}
+.user-table td{padding:11px 12px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle}
+.user-table tr:last-child td{border-bottom:none}
+.user-table tr:hover td{background:var(--g1)}
+.role-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
+.role-admin{background:#fef9c3;color:#854d0e}
+.role-manager{background:var(--blue2);color:#1d4ed8}
+.role-viewer{background:var(--g1);color:var(--g5)}
+.user-av-sm{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.del-btn{background:var(--red2);color:#991b1b;border:1px solid #fca5a5;border-radius:var(--r8);padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.del-btn:hover{background:#ef4444;color:#fff;border-color:#ef4444}
+.edit-btn{background:var(--blue2);color:#1d4ed8;border:1px solid #93c5fd;border-radius:var(--r8);padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;margin-right:4px}
+.edit-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.self-badge{font-size:9px;background:var(--green3);color:var(--green2);padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:300;animation:fadeIn .2s ease}
+.modal-box{background:var(--card);border-radius:var(--r20);padding:28px;width:420px;max-width:95vw;max-height:80vh;overflow-y:auto;animation:popIn .25s ease;position:relative}
+@keyframes popIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--g1);border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;color:var(--g5);display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--g2);color:var(--g9)}
+.modal-h{font-size:18px;font-weight:700;color:var(--g9);margin-bottom:6px;letter-spacing:-.4px}
+.modal-sub{font-size:13px;color:var(--g4);margin-bottom:20px;line-height:1.5}
+.modal-btn{width:100%;background:var(--g9);color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s;font-family:inherit}
+.modal-btn:hover{background:var(--green)}
+.modal-btn.green{background:var(--green)}
+.modal-btn.green:hover{background:var(--green2)}
+.modal-btn.red{background:var(--red)}
+.modal-btn.red:hover{background:#dc2626}
+.modal-skip{display:block;text-align:center;font-size:11px;color:var(--g4);margin-top:10px;cursor:pointer;background:none;border:none;font-family:inherit;width:100%;padding:4px}
+.modal-skip:hover{color:var(--g7)}
+.form-label{font-size:11px;font-weight:600;color:var(--g5);margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.3px}
+.form-input{width:100%;border:1.5px solid var(--border);border-radius:var(--r8);padding:9px 12px;font-size:13px;font-family:inherit;color:var(--g9);outline:none;margin-bottom:12px;transition:border-color .15s;background:var(--card)}
+.form-input:focus{border-color:var(--green)}
+.form-select{width:100%;border:1.5px solid var(--border);border-radius:var(--r8);padding:9px 12px;font-size:13px;font-family:inherit;color:var(--g9);outline:none;margin-bottom:12px;background:var(--card);cursor:pointer}
+.ob-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.ob-opt{border:1.5px solid var(--border);border-radius:var(--r12);padding:14px;cursor:pointer;transition:all .15s;text-align:center}
+.ob-opt:hover{border-color:var(--g3);background:var(--g1)}
+.ob-opt.sel{border-color:var(--green);background:var(--green3)}
+.ob-opt-icon{font-size:22px;margin-bottom:5px}
+.ob-opt-label{font-size:12px;font-weight:600;color:var(--g7)}
+.pw-wrap-modal{position:relative}
+.pw-wrap-modal .form-input{padding-right:44px;margin-bottom:0}
+.pw-eye-m{position:absolute;right:12px;top:11px;background:none;border:none;cursor:pointer;font-size:14px;color:var(--g4);padding:2px}
+.pw-eye-m:hover{color:var(--g7)}
+.pw-strength{height:3px;border-radius:20px;margin-top:6px;margin-bottom:12px;transition:all .3s}
+.pw-hint{font-size:10px;color:var(--g4);margin-bottom:12px;margin-top:2px}
+.confirm-danger{background:var(--red2);border:1px solid #fca5a5;border-radius:var(--r8);padding:12px;margin-bottom:16px;font-size:12px;color:#991b1b;line-height:1.5}
+.aura-bubble-s{background:var(--green3);border:1px solid var(--green4);border-radius:var(--r8);padding:12px;display:flex;gap:10px;margin-bottom:16px}
+.aura-av-s{width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.aura-bname{font-size:10px;font-weight:700;color:var(--green2);margin-bottom:3px}
+.aura-btext{font-size:12px;color:#14532d;line-height:1.5}
+.ob-steps{display:flex;gap:5px;margin-bottom:20px}
+.ob-step{height:3px;flex:1;background:var(--g2);border-radius:20px;transition:background .3s}
+.ob-step.done{background:var(--green)}.ob-step.cur{background:var(--green);opacity:.5}
+.ob-colors{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.ob-color{width:32px;height:32px;border-radius:50%;cursor:pointer;transition:transform .2s;border:3px solid transparent}
+.ob-color:hover{transform:scale(1.15)}.ob-color.sel{border-color:var(--g9)}
+.ob-input{width:100%;border:1.5px solid var(--border);border-radius:var(--r8);padding:11px 13px;font-size:13px;outline:none;transition:border-color .15s;margin-bottom:10px;font-family:inherit;color:var(--g9)}
+.ob-input:focus{border-color:var(--green)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--g9);color:#fff;padding:12px 16px;border-radius:var(--r12);font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;z-index:9000;min-width:200px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.toast-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+.toast-close{margin-left:auto;cursor:pointer;opacity:.5;font-size:14px;background:none;border:none;color:#fff;padding:0 0 0 8px}
+.toast-close:hover{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ LOGIN SCREEN ══════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-dot">A</div>
+      <span class="login-logo-text">AURA</span>
+    </div>
+    <div class="login-tagline">Plataforma de gestão para restaurantes</div>
+    <div class="login-error" id="login-error">Usuário ou senha incorretos. Tente novamente.</div>
+    <label class="login-label">Usuário</label>
+    <input class="login-input" id="login-user" placeholder="seu@email ou usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+    <label class="login-label">Senha</label>
+    <div class="pw-wrap">
+      <input class="login-input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="pw-eye" onclick="togglePw('login-pass',this)" title="Ver senha">👁️</button>
+    </div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Entrar na plataforma</button>
+    <div class="login-footer">AURA Platform © 2025 · Acesso restrito</div>
+    <div class="login-dots">
+      <div class="login-dot act"></div>
+      <div class="login-dot"></div>
+      <div class="login-dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ APP ══════════════════ -->
+<div id="app-screen">
+<div class="shell" id="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <div class="sb-logo-dot">A</div>
+      <span class="sb-logo-text">AURA</span>
+    </div>
+    <div class="sb-rest">
+      <div class="sb-rest-av" id="sb-av">SM</div>
+      <div style="flex:1;min-width:0">
+        <div class="sb-rest-name" id="sb-name">@suamarca</div>
+        <div class="sb-rest-sub">Performance Plan</div>
+      </div>
+      <div class="sb-pulse"></div>
+    </div>
+  </div>
+  <div class="sb-section">Principal</div>
+  <div class="sb-item active" data-page="dash" onclick="nav(this,'dash')"><span class="sb-icon">⬛</span>Dashboard</div>
+  <div class="sb-item" data-page="pedidos" onclick="nav(this,'pedidos')"><span class="sb-icon">🧾</span>Pedidos<span class="sb-badge" id="badge-pedidos">7</span></div>
+  <div class="sb-item" data-page="estoque" onclick="nav(this,'estoque')"><span class="sb-icon">📦</span>Estoque<span class="sb-badge" style="background:#ef4444" id="badge-stock">!</span></div>
+  <div class="sb-section">Gestão</div>
+  <div class="sb-item" data-page="financeiro" onclick="nav(this,'financeiro')"><span class="sb-icon">💰</span>Financeiro</div>
+  <div class="sb-item" data-page="equipe" onclick="nav(this,'equipe')"><span class="sb-icon">👥</span>Equipe</div>
+  <div class="sb-item" data-page="crm" onclick="nav(this,'crm')"><span class="sb-icon">💬</span>CRM & Clientes</div>
+  <div class="sb-section">Inteligência</div>
+  <div class="sb-item" data-page="aura" onclick="nav(this,'aura')"><span class="sb-icon">🤖</span>AURA AI<span class="sb-badge" id="badge-aura">3</span></div>
+  <div class="sb-item" data-page="comp" onclick="nav(this,'comp')"><span class="sb-icon">🗺️</span>Concorrentes</div>
+  <div class="sb-section" id="sb-section-admin" style="display:none">Administração</div>
+  <div class="sb-item" data-page="usuarios" onclick="nav(this,'usuarios')" id="sb-usuarios" style="display:none"><span class="sb-icon">🔐</span>Usuários</div>
+  <div class="sb-bottom">
+    <div class="sb-user" onclick="openOnboarding()">
+      <div class="sb-avatar" id="sb-bigav">SM</div>
+      <div><div class="sb-uname" id="sb-uname">@suamarca</div><div class="sb-plan" id="sb-role-label">Performance</div></div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">🚪 Sair da conta</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="tb-title">Dashboard</div>
+      <div class="topbar-sub">
+        <span class="live-pill"><span style="width:5px;height:5px;border-radius:50%;background:var(--green2)"></span>ao vivo</span>
+        Hoje, <span id="tb-date"></span> · <span id="tb-logged-user" style="color:var(--green2);font-weight:600"></span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="notif-btn" id="notif-btn" onclick="toggleNotif()" title="Notificações">🔔<div class="notif-dot" id="notif-dot"></div></div>
+      <button class="tb-btn-out" onclick="openOnboarding()">⚙️ Configurar marca</button>
+      <button class="tb-btn" id="tb-main-btn" onclick="handleMainBtn()">Ver pedidos ao vivo</button>
+    </div>
+    <div class="notif-panel" id="notif-panel" style="display:none">
+      <div class="notif-header">
+        <span class="notif-title">Notificações <span id="notif-count-badge" style="background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:20px;margin-left:4px"></span></span>
+        <button class="notif-clear" onclick="clearNotifs()">Marcar todas como lidas</button>
+      </div>
+      <div id="notif-list"></div>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dash">
+      <div class="alert a-err" onclick="nav(document.querySelector('[data-page=estoque]'),'estoque')">🚨 <strong>Crítico:</strong> Queijo mussarela abaixo do limite — clique para ver estoque</div>
+      <div class="metrics" id="dash-metrics"></div>
+      <div class="g2">
+        <div class="card"><div class="card-title">Vendas — últimos 7 dias <span class="card-title-sub" id="dash-total"></span></div><div class="bars" id="dash-bars" style="height:80px"></div><div style="display:flex;gap:5px;margin-top:5px" id="dash-labels"></div></div>
+        <div class="card"><div class="card-title">Pedidos em tempo real <span class="card-title-sub"><span class="live-pill"><span style="width:5px;height:5px;border-radius:50%;background:var(--green2)"></span>ao vivo</span></span></div><div id="live-feed" style="display:flex;flex-direction:column;gap:3px;max-height:130px;overflow:hidden"></div></div>
+      </div>
+      <div class="g3">
+        <div class="card"><div class="card-title">🏆 Top produtos</div><div id="top-prods"></div></div>
+        <div class="card"><div class="card-title">📡 Canais</div><div id="channels"></div></div>
+        <div class="card"><div class="card-title">⚡ Ações rápidas</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button class="add-btn" onclick="nav(document.querySelector('[data-page=pedidos]'),'pedidos')" style="text-align:left;padding:9px 12px">🧾 Ver kanban de pedidos →</button>
+            <button class="add-btn" onclick="nav(document.querySelector('[data-page=aura]'),'aura')" style="text-align:left;padding:9px 12px">🤖 Perguntar para AURA AI →</button>
+            <button class="add-btn" onclick="nav(document.querySelector('[data-page=comp]'),'comp')" style="text-align:left;padding:9px 12px">🗺️ Ver radar de concorrentes →</button>
+            <button class="add-btn" onclick="simulatePedido()" style="text-align:left;padding:9px 12px;color:var(--green2);border-color:var(--green4)">+ Simular novo pedido ✨</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div class="page" id="page-pedidos">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="tabs" id="pedidos-tabs">
+          <div class="tab on" onclick="filterPedidos(this,'todos')">Todos</div>
+          <div class="tab" onclick="filterPedidos(this,'ifood')">iFood</div>
+          <div class="tab" onclick="filterPedidos(this,'whatsapp')">WhatsApp</div>
+          <div class="tab" onclick="filterPedidos(this,'mesa')">Mesa</div>
+        </div>
+        <button class="tb-btn" onclick="openNewOrderModal()">+ Novo pedido</button>
+      </div>
+      <div class="kanban" id="kanban"></div>
+    </div>
+
+    <!-- ESTOQUE -->
+    <div class="page" id="page-estoque">
+      <div class="alert a-err" id="muss-alert">🚨 Queijo mussarela crítico — menos de 2kg restantes. Contate o fornecedor.</div>
+      <div class="alert a-warn">⚠️ Pão de hambúrguer e tomate com nível baixo — previsão: esgotamento em 2 dias</div>
+      <div class="metrics" id="stock-metrics"></div>
+      <div class="card"><div class="card-title">Inventário <button class="add-btn" style="width:auto;display:inline-block;padding:4px 14px;font-size:11px;border-radius:20px;margin:0" onclick="openRestockModal()">+ Dar entrada ✨</button></div><div id="stock-list"></div></div>
+    </div>
+
+    <!-- FINANCEIRO -->
+    <div class="page" id="page-financeiro">
+      <div class="g2">
+        <div class="card">
+          <div style="font-size:10px;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Faturamento bruto · Maio 2025</div>
+          <div class="fin-big">R$124.830</div>
+          <div class="up" style="font-size:12px;margin-top:5px">↑ +22% vs. abril</div>
+          <div style="margin-top:16px" id="fin-rows"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Horários de pico — receita</div>
+          <div class="bars" id="peak-bars" style="height:70px"></div>
+          <div style="display:flex;gap:4px;margin-top:4px" id="peak-labels"></div>
+          <div class="alert a-ok" style="margin-top:12px;font-size:11px;cursor:pointer" onclick="fillAura('Como aumentar a receita no horário de pico entre 19h e 21h?')">💡 AURA: aumente equipe às 19h–21h para capturar +R$800/dia → Perguntar</div>
+        </div>
+      </div>
+      <div class="g3">
+        <div class="metric"><div class="metric-label">Lucro líquido</div><div class="metric-val" style="color:var(--green2)">R$32.457</div><div class="metric-change up">↑ Margem: 26%</div></div>
+        <div class="metric"><div class="metric-label">Despesas totais</div><div class="metric-val">R$92.373</div><div class="metric-change dn">↑ +8% vs. ant.</div></div>
+        <div class="metric"><div class="metric-label">Previsão junho</div><div class="metric-val" style="color:var(--blue)">R$138k</div><div class="metric-change up">AURA AI +10.5%</div></div>
+      </div>
+    </div>
+
+    <!-- EQUIPE -->
+    <div class="page" id="page-equipe">
+      <div class="metrics" id="team-metrics"></div>
+      <div class="card"><div class="card-title">🏆 Ranking — performance Maio</div><div id="team-list"></div></div>
+      <div class="alert a-info">🎮 Gamificação ativa — colaboradores ganham pontos por velocidade, avaliação e assiduidade. Top 3 recebem bônus no fim do mês.</div>
+    </div>
+
+    <!-- CRM -->
+    <div class="page" id="page-crm">
+      <div class="metrics" id="crm-metrics"></div>
+      <div class="g2">
+        <div class="card"><div class="card-title">👥 Melhores clientes</div><div id="crm-list"></div></div>
+        <div class="card"><div class="card-title">📣 Campanhas ativas</div><div id="camp-list"></div>
+          <button class="tb-btn" style="width:100%;margin-top:12px;font-size:12px" onclick="openNewCampModal()">+ Nova campanha WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AURA AI -->
+    <div class="page" id="page-aura">
+      <div class="g3">
+        <div class="metric" onclick="fillAura('Quais são meus horários de maior lucro?')" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="metric-label">💡 Sugestão</div><div style="font-size:12px;font-weight:600;color:var(--g9);margin-top:4px">Horários de maior lucro</div></div>
+        <div class="metric" onclick="fillAura('Como reduzir o desperdício de estoque?')" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="metric-label">📦 Sugestão</div><div style="font-size:12px;font-weight:600;color:var(--g9);margin-top:4px">Reduzir desperdício</div></div>
+        <div class="metric" onclick="fillAura('O que devo promover essa semana?')" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="metric-label">📈 Sugestão</div><div style="font-size:12px;font-weight:600;color:var(--g9);margin-top:4px">O que promover agora</div></div>
+      </div>
+      <div class="card" style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">A</div>
+          <div><div style="font-size:13px;font-weight:700;color:var(--g9)">AURA AI</div><span class="live-pill" style="width:fit-content"><span style="width:5px;height:5px;border-radius:50%;background:var(--green2)"></span>online agora</span></div>
+          <button class="add-btn" style="width:auto;padding:5px 12px;font-size:11px;border-radius:20px;margin:0 0 0 auto" onclick="clearAuraChat()">🗑️ Limpar chat</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          <button class="sug-btn" onclick="fillAura('Quais meus horários de pico?')">Horários de pico</button>
+          <button class="sug-btn" onclick="fillAura('Como está minha margem?')">Análise de margem</button>
+          <button class="sug-btn" onclick="fillAura('Sugestão de cardápio?')">Cardápio</button>
+          <button class="sug-btn" onclick="fillAura('Como captar mais clientes?')">Captação</button>
+        </div>
+        <div class="aura-chat-box" id="aura-chat"></div>
+        <div class="aura-input-row">
+          <input class="aura-input" id="aura-in" placeholder="Pergunte qualquer coisa sobre sua operação..." onkeydown="if(event.key==='Enter')sendAura()">
+          <button class="aura-send" onclick="sendAura()">Enviar →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCORRENTES -->
+    <div class="page" id="page-comp">
+      <div class="alert a-ok">🟢 AURA identificou 3 concorrentes com avaliação abaixo de 3.5★ — oportunidade de captura</div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Mapa de radar — 4km <span class="card-title-sub">ABC Paulista</span></div>
+          <div class="comp-map" id="comp-map"><div class="map-ring r1"></div><div class="map-ring r2"></div><div class="map-you"><div class="map-you-dot"></div><div class="map-label" id="map-you-label">@suamarca</div></div></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:var(--g4)">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--red)"></span>Forte</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--amber)"></span>Médio</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--g3)"></span>Fraco</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--green)"></span>Você</span>
+          </div>
+        </div>
+        <div class="card"><div class="card-title">Análise competitiva</div><div id="comp-list"></div></div>
+      </div>
+    </div>
+
+    <!-- USUÁRIOS (admin only) -->
+    <div class="page" id="page-usuarios">
+      <div class="alert a-info">🔐 Apenas administradores podem criar, editar ou deletar acessos.</div>
+      <div class="metrics" id="user-metrics"></div>
+      <div class="card">
+        <div class="card-title">
+          Usuários com acesso
+          <button class="tb-btn" style="font-size:11px;padding:6px 14px" onclick="openAddUserModal()">+ Novo usuário</button>
+        </div>
+        <table class="user-table" id="user-table"><thead><tr><th>Usuário</th><th>Login</th><th>Perfil</th><th>Criado em</th><th>Último acesso</th><th>Ações</th></tr></thead><tbody id="user-tbody"></tbody></table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+</div><!-- /app-screen -->
+
+<script>
+// ══════════════════════════════════════════
+// USER DB (localStorage-backed)
+// ══════════════════════════════════════════
+const STORAGE_KEY='aura_users_v1';
+const SESSION_KEY='aura_session_v1';
+
+function loadUsers(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw)return JSON.parse(raw);
+  }catch(e){}
+  // defaults
+  const defaults=[
+    {id:1,name:'Administrador',login:'admin',password:'admin123',role:'admin',createdAt:'01/01/2025',lastLogin:'—',color:'#fef9c3',tc:'#854d0e'},
+    {id:2,name:'Gerente',login:'gerente',password:'gerente123',role:'manager',createdAt:'10/03/2025',lastLogin:'—',color:'#eff6ff',tc:'#1e40af'},
+    {id:3,name:'Visualizador',login:'viewer',password:'viewer123',role:'viewer',createdAt:'15/04/2025',lastLogin:'—',color:'#f0fdf4',tc:'#166534'},
+  ];
+  saveUsers(defaults);
+  return defaults;
+}
+
+function saveUsers(users){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(users));}catch(e){}
+}
+
+function loadSession(){
+  try{const raw=localStorage.getItem(SESSION_KEY);if(raw)return JSON.parse(raw);}catch(e){}
+  return null;
+}
+
+function saveSession(user){
+  try{localStorage.setItem(SESSION_KEY,JSON.stringify({id:user.id,login:user.login,name:user.name,role:user.role}));}catch(e){}
+}
+
+function clearSession(){
+  try{localStorage.removeItem(SESSION_KEY);}catch(e){}
+}
+
+let users=loadUsers();
+let currentUser=null;
+
+// ══════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════
+function doLogin(){
+  const loginVal=document.getElementById('login-user').value.trim();
+  const passVal=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-error');
+  const btn=document.getElementById('login-btn');
+  err.style.display='none';
+  if(!loginVal||!passVal){err.textContent='Preencha usuário e senha.';err.style.display='block';return;}
+  btn.textContent='Verificando...';btn.disabled=true;
+  setTimeout(()=>{
+    const found=users.find(u=>u.login.toLowerCase()===loginVal.toLowerCase()&&u.password===passVal);
+    if(found){
+      // update lastLogin
+      found.lastLogin=new Date().toLocaleDateString('pt-BR')+' '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      saveUsers(users);
+      currentUser=found;
+      saveSession(found);
+      enterApp(found);
+    }else{
+      err.textContent='Usuário ou senha incorretos. Tente novamente.';
+      err.style.display='block';
+      btn.textContent='Entrar na plataforma';
+      btn.disabled=false;
+      document.getElementById('login-pass').value='';
+      document.getElementById('login-pass').focus();
+    }
+  },600);
+}
+
+function enterApp(user){
+  document.getElementById('login-screen').style.animation='fadeOut .4s ease forwards';
+  setTimeout(()=>{
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app-screen').style.display='block';
+    document.getElementById('app-screen').style.animation='fadeIn .4s ease';
+    initApp(user);
+  },380);
+}
+
+function doLogout(){
+  openConfirmModal('Sair da conta','Tem certeza que deseja sair?','🚪 Confirmar saída','red',()=>{
+    clearSession();
+    currentUser=null;
+    document.getElementById('app-screen').style.display='none';
+    const ls=document.getElementById('login-screen');
+    ls.style.display='flex';ls.style.animation='fadeIn .4s ease';
+    document.getElementById('login-user').value='';
+    document.getElementById('login-pass').value='';
+    document.getElementById('login-error').style.display='none';
+    document.getElementById('login-btn').textContent='Entrar na plataforma';
+    document.getElementById('login-btn').disabled=false;
+    showToast('👋 Você saiu da conta com sucesso.');
+  });
+}
+
+function togglePw(id,btn){
+  const inp=document.getElementById(id);
+  if(!inp)return;
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁️';}
+}
+
+// ══════════════════════════════════════════
+// APP INIT
+// ══════════════════════════════════════════
+function initApp(user){
+  document.getElementById('tb-logged-user').textContent=user.name+' ('+roleLabel(user.role)+')';
+  document.getElementById('sb-uname').textContent=user.name;
+  document.getElementById('sb-role-label').textContent=roleLabel(user.role);
+  // show admin menu only for admin
+  if(user.role==='admin'){
+    document.getElementById('sb-section-admin').style.display='';
+    document.getElementById('sb-usuarios').style.display='';
+  }
+  buildDash();buildLiveFeed();buildKanban();buildEstoque();buildFinanceiro();buildEquipe();buildCRM();buildComp();
+  renderNotifs();
+  setInterval(liveTick,10000);
+  setTimeout(()=>showToast('👋 Bem-vindo, '+user.name+'! Plataforma AURA carregada.'),500);
+}
+
+function roleLabel(r){return{admin:'Administrador',manager:'Gerente',viewer:'Visualizador'}[r]||r;}
+function roleBadgeClass(r){return{admin:'role-admin',manager:'role-manager',viewer:'role-viewer'}[r]||'role-viewer';}
+
+const colors=['#fef9c3','#eff6ff','#f0fdf4','#fdf2f8','#fff7ed','#f1f5f9'];
+const tcs=['#854d0e','#1e40af','#166534','#86198f','#9a3412','#475569'];
+
+// ══════════════════════════════════════════
+// USER MANAGEMENT PAGE
+// ══════════════════════════════════════════
+function buildUserPage(){
+  const tbody=document.getElementById('user-tbody');if(!tbody)return;
+  tbody.innerHTML='';
+  users.forEach((u,i)=>{
+    const isSelf=currentUser&&u.id===currentUser.id;
+    const initials=u.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="user-av-sm" style="background:${u.color||colors[i%colors.length]};color:${u.tc||tcs[i%tcs.length]}">${initials}</div>
+        <span style="font-weight:600;color:var(--g9)">${u.name}${isSelf?'<span class="self-badge">Você</span>':''}</span>
+      </div></td>
+      <td style="color:var(--g5);font-family:monospace">${u.login}</td>
+      <td><span class="role-badge ${roleBadgeClass(u.role)}">${roleLabel(u.role)}</span></td>
+      <td style="color:var(--g4)">${u.createdAt||'—'}</td>
+      <td style="color:var(--g4)">${u.lastLogin||'—'}</td>
+      <td>
+        <button class="edit-btn" onclick="openEditUserModal(${u.id})">✏️ Editar</button>
+        ${!isSelf?`<button class="del-btn" onclick="openDeleteUserModal(${u.id})">🗑️ Deletar</button>`:'<span style="font-size:10px;color:var(--g4)">—</span>'}
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  // metrics
+  const um=document.getElementById('user-metrics');if(!um)return;
+  um.innerHTML=`
+    <div class="metric"><div class="metric-label">Total usuários</div><div class="metric-val">${users.length}</div></div>
+    <div class="metric"><div class="metric-label">Administradores</div><div class="metric-val" style="color:#854d0e">${users.filter(u=>u.role==='admin').length}</div></div>
+    <div class="metric"><div class="metric-label">Gerentes</div><div class="metric-val" style="color:var(--blue)">${users.filter(u=>u.role==='manager').length}</div></div>
+    <div class="metric"><div class="metric-label">Visualizadores</div><div class="metric-val" style="color:var(--g5)">${users.filter(u=>u.role==='viewer').length}</div></div>`;
+}
+
+function openAddUserModal(){
+  openModal(`
+    <div class="modal-h">➕ Novo usuário</div>
+    <div class="modal-sub">Crie um login e senha para um novo acesso à plataforma.</div>
+    <label class="form-label">Nome completo</label>
+    <input class="form-input" id="nu-name" placeholder="Ex: João da Silva">
+    <label class="form-label">Login (usuário)</label>
+    <input class="form-input" id="nu-login" placeholder="Ex: joao ou joao@email.com" oninput="checkLoginAvail(this)">
+    <div id="nu-login-msg" style="font-size:11px;margin-top:-10px;margin-bottom:10px;height:14px"></div>
+    <label class="form-label">Senha</label>
+    <div class="pw-wrap-modal" style="margin-bottom:4px">
+      <input class="form-input" id="nu-pass" type="password" placeholder="Mínimo 6 caracteres" oninput="checkPwStrength(this,'nu-strength','nu-hint')">
+      <button class="pw-eye-m" onclick="togglePwModal('nu-pass',this)">👁️</button>
+    </div>
+    <div class="pw-strength" id="nu-strength" style="background:var(--g2);width:0%"></div>
+    <div class="pw-hint" id="nu-hint">Digite uma senha</div>
+    <label class="form-label">Perfil de acesso</label>
+    <select class="form-select" id="nu-role">
+      <option value="viewer">Visualizador — apenas leitura</option>
+      <option value="manager">Gerente — leitura + operações</option>
+      <option value="admin">Administrador — acesso total</option>
+    </select>
+    <button class="modal-btn green" onclick="confirmAddUser()">✓ Criar usuário</button>
+  `);
+}
+
+function checkLoginAvail(inp){
+  const val=inp.value.trim().toLowerCase();
+  const msg=document.getElementById('nu-login-msg');if(!msg)return;
+  if(!val){msg.textContent='';return;}
+  const taken=users.find(u=>u.login.toLowerCase()===val);
+  if(taken){msg.style.color='var(--red)';msg.textContent='✗ Login já existe';}
+  else{msg.style.color='var(--green2)';msg.textContent='✓ Login disponível';}
+}
+
+function checkPwStrength(inp,barId,hintId){
+  const v=inp.value;
+  const bar=document.getElementById(barId);
+  const hint=document.getElementById(hintId);
+  if(!bar||!hint)return;
+  let score=0;
+  if(v.length>=6)score++;
+  if(v.length>=10)score++;
+  if(/[A-Z]/.test(v))score++;
+  if(/[0-9]/.test(v))score++;
+  if(/[^A-Za-z0-9]/.test(v))score++;
+  const info=[
+    {pct:'0%',color:'var(--g2)',text:'Digite uma senha'},
+    {pct:'20%',color:'var(--red)',text:'Muito fraca'},
+    {pct:'40%',color:'var(--amber)',text:'Fraca'},
+    {pct:'65%',color:'#eab308',text:'Razoável'},
+    {pct:'85%',color:'var(--green)',text:'Boa'},
+    {pct:'100%',color:'var(--green2)',text:'Excelente! 🔒'},
+  ];
+  const s=v.length===0?0:Math.max(1,score);
+  bar.style.width=info[s].pct;bar.style.background=info[s].color;
+  hint.textContent=info[s].text;hint.style.color=info[s].color;
+}
+
+function togglePwModal(id,btn){
+  const inp=document.getElementById(id);if(!inp)return;
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁️';}
+}
+
+function confirmAddUser(){
+  const name=document.getElementById('nu-name').value.trim();
+  const login=document.getElementById('nu-login').value.trim();
+  const pass=document.getElementById('nu-pass').value;
+  const role=document.getElementById('nu-role').value;
+  if(!name){showToast('⚠️ Informe o nome!');return;}
+  if(!login){showToast('⚠️ Informe o login!');return;}
+  if(users.find(u=>u.login.toLowerCase()===login.toLowerCase())){showToast('⚠️ Esse login já existe!');return;}
+  if(pass.length<6){showToast('⚠️ Senha deve ter pelo menos 6 caracteres!');return;}
+  const ci=users.length%colors.length;
+  users.push({
+    id:Date.now(),name,login,password:pass,role,
+    createdAt:new Date().toLocaleDateString('pt-BR'),
+    lastLogin:'—',color:colors[ci],tc:tcs[ci]
+  });
+  saveUsers(users);
+  closeModal();
+  buildUserPage();
+  showToast('✓ Usuário "'+name+'" criado com sucesso!');
+  addNotif('🔐','#dbeafe','Novo usuário criado: '+name+' ('+roleLabel(role)+')',()=>nav(document.querySelector('[data-page=usuarios]'),'usuarios'));
+}
+
+function openEditUserModal(uid){
+  const u=users.find(x=>x.id===uid);if(!u)return;
+  openModal(`
+    <div class="modal-h">✏️ Editar usuário</div>
+    <div class="modal-sub">Altere as informações de acesso de <strong>${u.name}</strong>.</div>
+    <label class="form-label">Nome completo</label>
+    <input class="form-input" id="eu-name" value="${u.name}">
+    <label class="form-label">Login</label>
+    <input class="form-input" id="eu-login" value="${u.login}">
+    <label class="form-label">Nova senha <span style="font-size:10px;color:var(--g4);font-weight:400">(deixe em branco para manter)</span></label>
+    <div class="pw-wrap-modal" style="margin-bottom:4px">
+      <input class="form-input" id="eu-pass" type="password" placeholder="Nova senha (opcional)" oninput="checkPwStrength(this,'eu-strength','eu-hint')">
+      <button class="pw-eye-m" onclick="togglePwModal('eu-pass',this)">👁️</button>
+    </div>
+    <div class="pw-strength" id="eu-strength" style="background:var(--g2);width:0%"></div>
+    <div class="pw-hint" id="eu-hint" style="margin-bottom:12px">Deixe vazio para manter a senha atual</div>
+    <label class="form-label">Perfil de acesso</label>
+    <select class="form-select" id="eu-role">
+      <option value="viewer"${u.role==='viewer'?' selected':''}>Visualizador — apenas leitura</option>
+      <option value="manager"${u.role==='manager'?' selected':''}>Gerente — leitura + operações</option>
+      <option value="admin"${u.role==='admin'?' selected':''}>Administrador — acesso total</option>
+    </select>
+    <button class="modal-btn green" onclick="confirmEditUser(${uid})">✓ Salvar alterações</button>
+  `);
+}
+
+function confirmEditUser(uid){
+  const u=users.find(x=>x.id===uid);if(!u)return;
+  const name=document.getElementById('eu-name').value.trim();
+  const login=document.getElementById('eu-login').value.trim();
+  const pass=document.getElementById('eu-pass').value;
+  const role=document.getElementById('eu-role').value;
+  if(!name||!login){showToast('⚠️ Nome e login são obrigatórios!');return;}
+  const conflict=users.find(x=>x.login.toLowerCase()===login.toLowerCase()&&x.id!==uid);
+  if(conflict){showToast('⚠️ Esse login já pertence a outro usuário!');return;}
+  if(pass&&pass.length<6){showToast('⚠️ Nova senha deve ter pelo menos 6 caracteres!');return;}
+  u.name=name;u.login=login;u.role=role;
+  if(pass)u.password=pass;
+  saveUsers(users);
+  // update session if editing self
+  if(currentUser&&currentUser.id===uid){
+    currentUser.name=name;currentUser.login=login;currentUser.role=role;
+    saveSession(currentUser);
+    document.getElementById('tb-logged-user').textContent=name+' ('+roleLabel(role)+')';
+    document.getElementById('sb-uname').textContent=name;
+  }
+  closeModal();buildUserPage();
+  showToast('✓ Usuário "'+name+'" atualizado!');
+}
+
+function openDeleteUserModal(uid){
+  const u=users.find(x=>x.id===uid);if(!u)return;
+  if(u.role==='admin'&&users.filter(x=>x.role==='admin').length<=1){
+    showToast('⚠️ Não é possível deletar o único administrador!');return;
+  }
+  openConfirmModal(
+    '🗑️ Deletar usuário',
+    `Você está prestes a remover o acesso de <strong>${u.name}</strong> (${u.login}). Esta ação não pode ser desfeita.`,
+    '🗑️ Sim, deletar acesso','red',
+    ()=>{
+      users=users.filter(x=>x.id!==uid);
+      saveUsers(users);
+      buildUserPage();
+      showToast('✓ Usuário "'+u.name+'" removido.');
+      addNotif('🗑️','#fee2e2','Acesso removido: '+u.name+' ('+u.login+')',null);
+    }
+  );
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+const titles={dash:'Dashboard',pedidos:'Pedidos',estoque:'Estoque',financeiro:'Financeiro',equipe:'Equipe',crm:'CRM & Clientes',aura:'AURA AI',comp:'Concorrentes',usuarios:'Gestão de Usuários'};
+
+function nav(el,page){
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(el&&el.classList)el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('page-'+page);if(pg)pg.classList.add('active');
+  document.getElementById('tb-title').textContent=titles[page]||page;
+  updateMainBtn(page);
+  document.getElementById('notif-panel').style.display='none';
+  if(page==='aura')buildAura();
+  if(page==='usuarios')buildUserPage();
+}
+
+function updateMainBtn(page){
+  const btn=document.getElementById('tb-main-btn');
+  const labels={dash:'Ver pedidos ao vivo',pedidos:'+ Novo pedido',estoque:'+ Dar entrada',financeiro:'Exportar relatório',equipe:'+ Colaborador',crm:'Nova campanha',aura:'Análise completa',comp:'Exportar radar',usuarios:'+ Novo usuário'};
+  btn.textContent=labels[page]||'';
+}
+
+function handleMainBtn(){
+  const page=document.querySelector('.sb-item.active')?.dataset?.page||'dash';
+  const map={dash:()=>nav(document.querySelector('[data-page=pedidos]'),'pedidos'),
+    pedidos:openNewOrderModal,estoque:openRestockModal,financeiro:openExportModal,
+    equipe:openNewColabModal,crm:openNewCampModal,
+    aura:()=>document.getElementById('aura-in').focus(),
+    comp:openExportRadarModal,usuarios:openAddUserModal};
+  if(map[page])map[page]();else showToast('✓ Ação executada!');
+}
+
+document.getElementById('tb-date').textContent=new Date().toLocaleDateString('pt-BR');
+
+// ══════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════
+let notifications=[];
+const defaultNotifs=[
+  {id:1,icon:'🟢',bg:'#dcfce7',text:'Novo pedido #4530 via iFood — R$89,00',time:'Agora',read:false,action:()=>nav(document.querySelector('[data-page=pedidos]'),'pedidos')},
+  {id:2,icon:'🚨',bg:'#fee2e2',text:'Estoque crítico: Queijo mussarela abaixo do limite!',time:'5 min',read:false,action:()=>nav(document.querySelector('[data-page=estoque]'),'estoque')},
+  {id:3,icon:'⭐',bg:'#fef9c3',text:'Nova avaliação 5★ recebida no iFood',time:'12 min',read:false,action:()=>showToast('"Entrega rápida e comida incrível!" ⭐')},
+  {id:4,icon:'📊',bg:'#dbeafe',text:'Relatório semanal — Receita: R$124.830',time:'1h',read:false,action:()=>nav(document.querySelector('[data-page=financeiro]'),'financeiro')},
+  {id:5,icon:'💬',bg:'#dcfce7',text:'Campanha WhatsApp atingiu 340 clientes',time:'2h',read:true,action:()=>nav(document.querySelector('[data-page=crm]'),'crm')},
+  {id:6,icon:'🏆',bg:'#f0fdf4',text:'Carlos Mendes atingiu a meta mensal!',time:'3h',read:true,action:()=>nav(document.querySelector('[data-page=equipe]'),'equipe')},
+];
+notifications=[...defaultNotifs];
+
+function renderNotifs(){
+  const list=document.getElementById('notif-list');
+  const unread=notifications.filter(n=>!n.read);
+  const badge=document.getElementById('notif-count-badge');
+  badge.textContent=unread.length>0?unread.length:'';
+  badge.style.display=unread.length>0?'inline':'none';
+  document.getElementById('notif-dot').style.opacity=unread.length>0?'1':'0';
+  if(!notifications.length){list.innerHTML=`<div class="notif-empty">Sem notificações no momento</div>`;return;}
+  list.innerHTML='';
+  notifications.forEach(n=>{
+    const div=document.createElement('div');
+    div.className='notif-item'+(n.read?'':' unread');
+    div.innerHTML=`<div class="notif-item-icon" style="background:${n.bg}">${n.icon}</div><div style="flex:1;min-width:0"><div class="notif-item-text">${n.text}</div><div class="notif-item-time">${n.time}</div></div>${!n.read?`<div style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:4px"></div>`:''}`;
+    div.onclick=()=>{n.read=true;renderNotifs();document.getElementById('notif-panel').style.display='none';if(n.action)n.action();};
+    list.appendChild(div);
+  });
+}
+function toggleNotif(){
+  const p=document.getElementById('notif-panel');
+  if(p.style.display==='none'){p.style.display='block';renderNotifs();}else p.style.display='none';
+}
+function clearNotifs(){notifications.forEach(n=>n.read=true);renderNotifs();showToast('✓ Notificações marcadas como lidas');}
+function addNotif(icon,bg,text,action){
+  notifications.unshift({id:Date.now(),icon,bg,text,time:'Agora',read:false,action});
+  renderNotifs();
+}
+document.addEventListener('click',e=>{
+  const p=document.getElementById('notif-panel');
+  const btn=document.getElementById('notif-btn');
+  if(p&&!p.contains(e.target)&&btn&&!btn.contains(e.target))p.style.display='none';
+});
+
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+let revenue=4832,orderCount=24,brandName='@suamarca';
+function buildDash(){
+  const days=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  const vals=[3200,2800,3600,3100,4200,5800,revenue];
+  const max=Math.max(...vals);
+  document.getElementById('dash-total').textContent='R$'+vals.reduce((a,b)=>a+b,0).toLocaleString('pt-BR');
+  const bars=document.getElementById('dash-bars'),labels=document.getElementById('dash-labels');
+  bars.innerHTML='';labels.innerHTML='';
+  vals.forEach((v,i)=>{
+    const col=document.createElement('div');col.className='bar-col';
+    const fill=document.createElement('div');fill.className='bar-fill';
+    fill.style.height=Math.round(v/max*100)+'%';fill.style.background=i===6?'#22c55e':'#bbf7d0';
+    fill.onclick=()=>showToast(days[i]+': R$'+v.toLocaleString('pt-BR'));
+    col.appendChild(fill);bars.appendChild(col);
+    const l=document.createElement('div');l.className='bar-label';l.textContent=days[i];labels.appendChild(l);
+  });
+  const mc=document.getElementById('dash-metrics');mc.innerHTML='';
+  [{label:'Faturamento hoje',val:'R$'+revenue.toLocaleString('pt-BR'),change:'↑ +18% vs ontem',cls:'up'},
+   {label:'Pedidos ativos',val:orderCount,change:'↑ em preparo',cls:'up'},
+   {label:'Ticket médio',val:'R$67,20',change:'↑ +4.2%',cls:'up'},
+   {label:'Satisfação',val:'4.8 ★',change:'Excelente',cls:'up'},
+  ].forEach(m=>mc.innerHTML+=`<div class="metric"><div class="metric-label">${m.label}</div><div class="metric-val">${m.val}</div><div class="metric-change ${m.cls}">${m.change}</div></div>`);
+  ['top-prods','channels'].forEach(id=>{
+    if(id==='top-prods'){
+      const el=document.getElementById(id);el.innerHTML='';
+      ['X-Burguer Smash','Pizza Margherita','Combo Família','Batata Frita G','Milk Shake'].forEach((p,i)=>{
+        el.innerHTML+=`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:10px;font-weight:700;color:var(--g4);min-width:14px">${i+1}</span><span style="flex:1;font-size:12px">${p}</span><span style="font-size:11px;font-weight:700;color:var(--g7)">${[47,39,31,28,22][i]}x</span></div>`;
+      });
+    }else{
+      const el=document.getElementById(id);el.innerHTML='';
+      [['iFood','52%','#ef4444'],['WhatsApp','28%','#22c55e'],['Balcão','20%','#3b82f6']].forEach(([n,p,c])=>{
+        el.innerHTML+=`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:var(--g5)">${n}</span><span style="font-weight:700">${p}</span></div><div style="height:5px;background:var(--g2);border-radius:20px"><div style="height:5px;width:${p};background:${c};border-radius:20px"></div></div></div>`;
+      });
+    }
+  });
+}
+function buildLiveFeed(){
+  const feed=document.getElementById('live-feed');if(!feed)return;
+  const events=[{d:'var(--green)',t:'🟢 Novo pedido #4528 — iFood',v:'R$72,00'},{d:'var(--amber)',t:'🟡 Pedido #4525 saiu para entrega',v:'12 min'},{d:'var(--green)',t:'✅ Pedido #4521 finalizado',v:'R$58,90'},{d:'var(--green)',t:'🟢 Novo pedido #4529 — WhatsApp',v:'R$94,50'},{d:'var(--amber)',t:'🟡 Pedido #4524 em preparo',v:'8 min'}];
+  feed.innerHTML='';const now=new Date();
+  events.forEach((e,i)=>{const t=new Date(now-i*180000),time=t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');const row=document.createElement('div');row.className='ticker-row';row.innerHTML=`<span class="ticker-dot" style="background:${e.d}"></span><span style="font-size:12px;color:var(--g7);flex:1">${e.t}</span><span style="font-size:10px;color:var(--g4)">${time}</span><span style="font-size:12px;font-weight:700;color:var(--g9)">${e.v}</span>`;row.onclick=()=>showToast(e.t+' · '+e.v);feed.appendChild(row);});
+}
+function simulatePedido(){
+  orderCount++;revenue+=Math.floor(Math.random()*80+40);
+  const items=['X-Burguer Smash','Pizza Calabresa','Combo Família','Sushi 30 peças','Batata + Refri'],prices=['R$67,00','R$89,00','R$127,00','R$145,00','R$42,00'],idx=Math.floor(Math.random()*5),num=4530+Math.floor(Math.random()*20);
+  showToast('🟢 Novo pedido #'+num+' — '+items[idx]+' ('+prices[idx]+')');
+  addNotif('🟢','#dcfce7','Pedido #'+num+' recebido — '+items[idx],()=>nav(document.querySelector('[data-page=pedidos]'),'pedidos'));
+  buildDash();
+  const b=document.getElementById('badge-pedidos');if(b)b.textContent=parseInt(b.textContent||0)+1;
+  if(document.getElementById('page-pedidos').classList.contains('active'))addKanbanOrder(num,items[idx],prices[idx],'ch-wh','WhatsApp');
+}
+function liveTick(){
+  if(document.getElementById('page-dash').classList.contains('active')){revenue+=Math.floor(Math.random()*12-2);buildLiveFeed();buildDash();}
+}
+
+// ══════════════════════════════════════════
+// KANBAN
+// ══════════════════════════════════════════
+let currentFilter='todos';
+const kanbanCols=[
+  {id:'novo',title:'Recebido',color:'#818cf8',orders:[{num:'#4521',items:'X-Burguer + Batata G + Refri',price:'R$58,90',time:'2 min',ch:'ch-if',chLabel:'iFood'},{num:'#4522',items:'2x Pizza Margherita',price:'R$89,00',time:'4 min',ch:'ch-wh',chLabel:'WhatsApp'},{num:'#4523',items:'Combo Família + Sobremesa',price:'R$127,00',time:'5 min',ch:'ch-ms',chLabel:'Mesa'}]},
+  {id:'prep',title:'Preparando',color:'#f59e0b',orders:[{num:'#4518',items:'Sushi Combo 30 peças',price:'R$145,00',time:'12 min',ch:'ch-if',chLabel:'iFood'},{num:'#4519',items:'X-Tudo + Milk Shake',price:'R$74,50',time:'15 min',ch:'ch-wh',chLabel:'WhatsApp'}]},
+  {id:'delivery',title:'Saiu p/ entrega',color:'#3b82f6',orders:[{num:'#4514',items:'Rodízio Premium x2',price:'R$196,00',time:'22 min',ch:'ch-if',chLabel:'iFood'},{num:'#4515',items:'Pizza Calabresa GG',price:'R$68,00',time:'25 min',ch:'ch-wh',chLabel:'WhatsApp'}]},
+  {id:'done',title:'Finalizado',color:'#22c55e',orders:[{num:'#4510',items:'Combo Kids + Suco',price:'R$42,00',time:'35 min',ch:'ch-ms',chLabel:'Mesa'},{num:'#4511',items:'Salada + Prato do dia',price:'R$55,00',time:'40 min',ch:'ch-ms',chLabel:'Mesa'}]},
+];
+function buildKanban(filter){
+  filter=filter||currentFilter;const k=document.getElementById('kanban');k.innerHTML='';
+  kanbanCols.forEach(col=>{
+    let orders=col.orders;
+    if(filter&&filter!=='todos')orders=orders.filter(o=>({ifood:'ch-if',whatsapp:'ch-wh',mesa:'ch-ms'})[filter]===o.ch);
+    const colEl=document.createElement('div');colEl.className='kol';colEl.id='kol-'+col.id;
+    colEl.innerHTML=`<div class="kol-head"><div class="kol-title"><span class="kol-dot" style="background:${col.color}"></span>${col.title}</div><span class="kol-count" id="kc-${col.id}">${orders.length}</span></div>`;
+    orders.forEach(o=>colEl.appendChild(createOrderCard(o,col.id)));
+    const b=document.createElement('button');b.className='add-btn';b.textContent='+ Adicionar pedido';b.onclick=openNewOrderModal;colEl.appendChild(b);
+    k.appendChild(colEl);
+  });
+}
+function createOrderCard(o,colId){
+  const c=document.createElement('div');c.className='order-card';
+  c.innerHTML=`<div class="order-num">${o.num}<span class="ch-tag ${o.ch}">${o.chLabel}</span></div><div class="order-items">${o.items}</div><div class="order-foot"><div class="order-price">${o.price}</div><div class="order-time">⏱ ${o.time}</div></div>`;
+  c.onclick=()=>advanceOrder(c,colId);return c;
+}
+function advanceOrder(card,cur){
+  const seq=['novo','prep','delivery','done'],idx=seq.indexOf(cur);
+  if(idx<seq.length-1){
+    const next=document.getElementById('kol-'+seq[idx+1]);
+    if(next){const btn=next.querySelector('.add-btn');card.onclick=()=>advanceOrder(card,seq[idx+1]);next.insertBefore(card,btn);const cc=document.getElementById('kc-'+cur),nc=document.getElementById('kc-'+seq[idx+1]);if(cc)cc.textContent=Math.max(0,parseInt(cc.textContent)-1);if(nc)nc.textContent=parseInt(nc.textContent)+1;showToast('✓ Pedido → '+['Preparando','Entregando','Finalizado! ✅'][idx]);}
+  }else{showToast('✅ Pedido finalizado!');card.style.opacity='.4';card.style.pointerEvents='none';setTimeout(()=>card.remove(),800);}
+}
+function addKanbanOrder(num,items,price,ch,chLabel){
+  const col=document.getElementById('kol-novo');if(!col)return;
+  const btn=col.querySelector('.add-btn');
+  const c=createOrderCard({num:'#'+num,items,price,time:'agora',ch:ch||'ch-wh',chLabel:chLabel||'WhatsApp'},'novo');
+  col.insertBefore(c,btn);
+  const cnt=document.getElementById('kc-novo');if(cnt)cnt.textContent=parseInt(cnt.textContent)+1;
+}
+function filterPedidos(el,filter){currentFilter=filter;document.querySelectorAll('#pedidos-tabs .tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');buildKanban(filter);}
+
+// ══════════════════════════════════════════
+// ESTOQUE
+// ══════════════════════════════════════════
+let stockData=[
+  {name:'Carne moída 80/20',cat:'Carnes',qty:'12 kg',qtyNum:12,unit:'kg',pct:60,cls:'b-ok'},
+  {name:'Queijo mussarela',cat:'Laticínios',qty:'2 kg',qtyNum:2,unit:'kg',pct:8,cls:'b-crit'},
+  {name:'Pão de hambúrguer',cat:'Padaria',qty:'48 un',qtyNum:48,unit:'un',pct:28,cls:'b-low'},
+  {name:'Batata congelada',cat:'Congelados',qty:'25 kg',qtyNum:25,unit:'kg',pct:75,cls:'b-ok'},
+  {name:'Alface crespa',cat:'Hortifruti',qty:'8 maços',qtyNum:8,unit:'maços',pct:40,cls:'b-ok'},
+  {name:'Tomate',cat:'Hortifruti',qty:'3 kg',qtyNum:3,unit:'kg',pct:18,cls:'b-low'},
+  {name:'Óleo de soja',cat:'Óleos',qty:'18 L',qtyNum:18,unit:'L',pct:80,cls:'b-ok'},
+  {name:'Embalagens',cat:'Descartáveis',qty:'120 un',qtyNum:120,unit:'un',pct:45,cls:'b-ok'},
+];
+function buildEstoque(){
+  const crit=stockData.filter(i=>i.cls==='b-crit').length,low=stockData.filter(i=>i.cls==='b-low').length,ok=stockData.filter(i=>i.cls==='b-ok').length;
+  const sm=document.getElementById('stock-metrics');
+  if(sm)sm.innerHTML=`<div class="metric"><div class="metric-label">Total</div><div class="metric-val">${stockData.length}</div></div><div class="metric"><div class="metric-label">OK</div><div class="metric-val" style="color:var(--green2)">${ok}</div></div><div class="metric"><div class="metric-label">Baixo</div><div class="metric-val" style="color:var(--amber)">${low}</div></div><div class="metric"><div class="metric-label">Crítico</div><div class="metric-val" style="color:var(--red)">${crit}</div></div>`;
+  const sl=document.getElementById('stock-list');if(!sl)return;sl.innerHTML='';
+  const bl={'b-ok':'OK','b-low':'Baixo','b-crit':'Crítico'};
+  stockData.forEach((item,i)=>{
+    const fc=item.cls==='b-ok'?'#22c55e':item.cls==='b-low'?'#f59e0b':'#ef4444';
+    const row=document.createElement('div');row.className='stock-row';
+    row.innerHTML=`<div style="flex:1"><div style="font-size:12px;font-weight:600">${item.name}</div><div style="font-size:10px;color:var(--g4)">${item.cat}</div></div><div class="stock-bar-w"><div class="stock-bar-bg"><div class="stock-bar-f" style="width:${item.pct}%;background:${fc}"></div></div></div><div class="stock-qty">${item.qty}</div><div style="min-width:58px;text-align:right"><span class="badge ${item.cls}">${bl[item.cls]}</span></div>`;
+    row.style.cursor='pointer';row.onclick=()=>openRestockModal(i);
+    sl.appendChild(row);
+  });
+}
+function openRestockModal(idx){
+  const opts=stockData.map((s,i)=>`<option value="${i}"${idx===i?' selected':''}>${s.name} (${s.qty})</option>`).join('');
+  openModal(`<div class="modal-h">📦 Dar entrada no estoque</div><div class="modal-sub">Registre a chegada de um item.</div>
+    <label class="form-label">Item</label><select class="form-select" id="rs-item">${opts}</select>
+    <label class="form-label">Quantidade</label><input class="form-input" id="rs-qty" type="number" min="1" placeholder="Ex: 10">
+    <label class="form-label">Unidade</label><input class="form-input" id="rs-unit" placeholder="kg, un, L...">
+    <label class="form-label">Fornecedor (opcional)</label><input class="form-input" id="rs-sup" placeholder="Nome do fornecedor">
+    <button class="modal-btn green" onclick="confirmRestock()">✓ Registrar entrada</button>`);
+  if(idx!==undefined)setTimeout(()=>{const u=document.getElementById('rs-unit');if(u)u.value=stockData[idx].unit;},50);
+}
+function confirmRestock(){
+  const i=parseInt(document.getElementById('rs-item').value),qty=parseInt(document.getElementById('rs-qty').value)||0,unit=document.getElementById('rs-unit').value||stockData[i].unit;
+  if(!qty){showToast('⚠️ Informe a quantidade!');return;}
+  stockData[i].qtyNum+=qty;stockData[i].qty=stockData[i].qtyNum+' '+unit;stockData[i].pct=Math.min(100,stockData[i].pct+qty*3);
+  stockData[i].cls=stockData[i].pct>50?'b-ok':stockData[i].pct>20?'b-low':'b-crit';
+  if(i===1){const a=document.getElementById('muss-alert');if(a)a.style.display='none';const bs=document.getElementById('badge-stock');if(bs)bs.style.display='none';}
+  closeModal();buildEstoque();showToast('✓ Entrada de '+qty+' '+unit+' registrada em '+stockData[i].name+'!');
+}
+
+// ══════════════════════════════════════════
+// FINANCEIRO
+// ══════════════════════════════════════════
+function buildFinanceiro(){
+  const fr=document.getElementById('fin-rows');if(!fr)return;fr.innerHTML='';
+  [['iFood','R$64.911'],['WhatsApp','R$34.952'],['Balcão / Salão','R$24.967']].forEach(([l,v])=>fr.innerHTML+=`<div class="fin-row"><span style="font-size:12px;color:var(--g5)">${l}</span><span style="font-size:12px;font-weight:700">${v}</span></div>`);
+  const hours=['11h','12h','13h','18h','19h','20h','21h','22h'],vals=[20,55,80,40,90,95,70,30],max=Math.max(...vals);
+  const pb=document.getElementById('peak-bars'),pl=document.getElementById('peak-labels');if(!pb)return;pb.innerHTML='';pl.innerHTML='';
+  vals.forEach((v,i)=>{const col=document.createElement('div');col.className='bar-col';const fill=document.createElement('div');fill.className='bar-fill';fill.style.height=Math.round(v/max*100)+'%';fill.style.background=v>=85?'#22c55e':v>=50?'#bbf7d0':'#e5f7ee';fill.onclick=()=>showToast(hours[i]+': '+v+'%');col.appendChild(fill);pb.appendChild(col);const l=document.createElement('div');l.className='bar-label';l.textContent=hours[i];pl.appendChild(l);});
+}
+function openExportModal(){
+  openModal(`<div class="modal-h">📊 Exportar relatório</div><div class="modal-sub">Escolha o período e o formato.</div>
+    <label class="form-label">Período</label><select class="form-select"><option>Maio 2025</option><option>Abril 2025</option><option>Março 2025</option><option>Últimos 3 meses</option></select>
+    <div class="ob-grid" style="margin-bottom:16px"><div class="ob-opt sel" onclick="selOb(this)"><div class="ob-opt-icon">📄</div><div class="ob-opt-label">PDF</div></div><div class="ob-opt" onclick="selOb(this)"><div class="ob-opt-icon">📊</div><div class="ob-opt-label">Excel</div></div></div>
+    <button class="modal-btn green" onclick="closeModal();showToast('✓ Relatório exportado!')">⬇️ Exportar</button>`);
+}
+
+// ══════════════════════════════════════════
+// EQUIPE
+// ══════════════════════════════════════════
+function buildEquipe(){
+  const tm=document.getElementById('team-metrics');
+  if(tm)tm.innerHTML=`<div class="metric"><div class="metric-label">Total equipe</div><div class="metric-val">12</div></div><div class="metric"><div class="metric-label">Presentes</div><div class="metric-val" style="color:var(--green2)">10</div></div><div class="metric"><div class="metric-label">Ausências</div><div class="metric-val" style="color:var(--amber)">2</div></div><div class="metric"><div class="metric-label">Satisfação</div><div class="metric-val">4.6 ★</div></div>`;
+  const team=[{rank:'🥇',name:'Carlos Mendes',role:'Chefe de Cozinha',pts:2840,pct:95,bg:'#fef9c3',tc:'#854d0e'},{rank:'🥈',name:'Ana Ferreira',role:'Caixa',pts:2310,pct:77,bg:'#f4f4f5',tc:'#52525b'},{rank:'🥉',name:'Bruno Costa',role:'Lanterneiro',pts:1980,pct:66,bg:'#fff7ed',tc:'#9a3412'},{rank:'4',name:'Juliana Lima',role:'Aux. Cozinha',pts:1640,pct:55,bg:'#f0fdf4',tc:'#166534'},{rank:'5',name:'Rafael Souza',role:'Entregador',pts:1290,pct:43,bg:'#eff6ff',tc:'#1e40af'}];
+  const tl=document.getElementById('team-list');if(!tl)return;tl.innerHTML='';
+  team.forEach(t=>{const r=document.createElement('div');r.className='team-row';r.innerHTML=`<div class="team-av" style="background:${t.bg};color:${t.tc};font-size:${t.rank.length>2?'14px':'12px'}">${t.rank}</div><div style="flex:1"><div class="team-name">${t.name}</div><div class="team-role">${t.role}</div></div><div><div class="team-bar-bg"><div class="team-bar-f" style="width:${t.pct}%"></div></div><div style="font-size:9px;color:var(--g4);margin-top:2px">${t.pct}% da meta</div></div><div style="text-align:right;margin-left:12px"><div style="font-size:15px;font-weight:700">${t.pts.toLocaleString('pt-BR')}</div><div style="font-size:9px;color:var(--g4)">pts</div></div>`;r.onclick=()=>showToast(t.name+': '+t.pts.toLocaleString('pt-BR')+' pontos');tl.appendChild(r);});
+}
+function openNewColabModal(){
+  openModal(`<div class="modal-h">👤 Novo colaborador</div><div class="modal-sub">Cadastre um membro da equipe.</div>
+    <label class="form-label">Nome</label><input class="form-input" id="col-name" placeholder="Ex: João da Silva">
+    <label class="form-label">Cargo</label><select class="form-select"><option>Cozinheiro(a)</option><option>Aux. de Cozinha</option><option>Atendente</option><option>Entregador(a)</option><option>Caixa</option></select>
+    <label class="form-label">Telefone</label><input class="form-input" placeholder="(11) 99999-0000">
+    <button class="modal-btn green" onclick="const n=document.getElementById('col-name').value.trim();if(!n){showToast('⚠️ Informe o nome!');return;}closeModal();showToast('✓ '+n+' cadastrado na equipe!')">✓ Cadastrar</button>`);
+}
+
+// ══════════════════════════════════════════
+// CRM
+// ══════════════════════════════════════════
+let campaigns=[{name:'Cashback 10% fins de semana',reach:'340 clientes',active:true},{name:'Aniversariantes do mês',reach:'12 clientes',active:true},{name:'Reativação 30+ dias',reach:'89 clientes',active:true},{name:'Promoção segunda-feira',reach:'—',active:false}];
+function buildCRM(){
+  const cm=document.getElementById('crm-metrics');
+  if(cm)cm.innerHTML=`<div class="metric"><div class="metric-label">Clientes ativos</div><div class="metric-val">1.284</div><div class="metric-change up">↑ +34</div></div><div class="metric"><div class="metric-label">VIP</div><div class="metric-val">87</div><div class="metric-change up">6.8%</div></div><div class="metric"><div class="metric-label">Cashback ativo</div><div class="metric-val">R$3.420</div></div><div class="metric"><div class="metric-label">Taxa retorno</div><div class="metric-val">68%</div><div class="metric-change up">Ótima</div></div>`;
+  const customers=[{init:'MB',name:'Maria Beatriz',last:'Ontem · Pizza',val:'R$2.840',vip:true,bg:'#fef9c3',tc:'#854d0e'},{init:'JP',name:'João Paulo',last:'2 dias · Combo',val:'R$1.920',vip:true,bg:'#eff6ff',tc:'#1e40af'},{init:'AS',name:'Ana Silva',last:'3 dias · Rodízio',val:'R$1.445',vip:false,bg:'#f0fdf4',tc:'#166534'},{init:'RL',name:'Roberto Lima',last:'5 dias · Sushi',val:'R$980',vip:false,bg:'#f4f4f5',tc:'#52525b'},{init:'CF',name:'Carla Freitas',last:'1 semana · Lanche',val:'R$340',vip:false,bg:'#fdf2f8',tc:'#86198f'}];
+  const cl=document.getElementById('crm-list');if(!cl)return;cl.innerHTML='';
+  customers.forEach(c=>{const r=document.createElement('div');r.className='crm-row';r.innerHTML=`<div class="crm-av" style="background:${c.bg};color:${c.tc}">${c.init}</div><div style="flex:1"><div style="font-size:12px;font-weight:600">${c.name}${c.vip?'<span class="vip-badge">VIP</span>':''}</div><div style="font-size:10px;color:var(--g4)">${c.last}</div></div><div style="font-size:13px;font-weight:700">${c.val}</div>`;r.onclick=()=>showToast(c.name+' · LTV: '+c.val);cl.appendChild(r);});
+  renderCampaigns();
+}
+function renderCampaigns(){
+  const camp=document.getElementById('camp-list');if(!camp)return;camp.innerHTML='';
+  campaigns.forEach((c,i)=>{const r=document.createElement('div');r.style.cssText='display:flex;align-items:center;gap:10px;padding:9px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:var(--r8);transition:background .15s';r.innerHTML=`<div style="flex:1"><div style="font-size:12px;font-weight:600">${c.name}</div><div style="font-size:10px;color:var(--g4)">${c.reach}</div></div><span class="badge ${c.active?'b-ok':'b-low'}">${c.active?'Ativa':'Pausada'}</span>`;r.onmouseover=()=>r.style.background='var(--g1)';r.onmouseout=()=>r.style.background='';r.onclick=()=>{campaigns[i].active=!campaigns[i].active;renderCampaigns();showToast((campaigns[i].active?'▶️ Ativada':'⏸️ Pausada')+': '+c.name);};camp.appendChild(r);});
+}
+function openNewCampModal(){
+  openModal(`<div class="modal-h">📣 Nova campanha WhatsApp</div><div class="modal-sub">Configure e envie para seus clientes.</div>
+    <label class="form-label">Nome da campanha</label><input class="form-input" id="cn-name" placeholder="Ex: Promoção de domingo">
+    <label class="form-label">Segmento</label><select class="form-select" id="cn-seg"><option>Todos os clientes (1.284)</option><option>Clientes VIP (87)</option><option>Inativos há 30+ dias (245)</option><option>Aniversariantes (12)</option></select>
+    <label class="form-label">Mensagem</label><textarea class="form-input" rows="3" placeholder="Olá {nome}! Temos uma oferta especial para você..."></textarea>
+    <button class="modal-btn green" onclick="const n=document.getElementById('cn-name').value.trim(),s=document.getElementById('cn-seg').value;if(!n){showToast('⚠️ Informe o nome!');return;}const r=s.match(/\((\d+)\)/)?.[1]||'—';campaigns.push({name:n,reach:r+' clientes',active:true});closeModal();renderCampaigns();showToast('📲 Campanha criada: '+n)">📲 Criar campanha</button>`);
+}
+
+// ══════════════════════════════════════════
+// AURA AI
+// ══════════════════════════════════════════
+let auraTyping=false;
+const auraReplies={pico:'Seus picos são <strong>12h–13h30</strong> (ticket R$42) e <strong>19h–21h</strong> (ticket R$78). Sexta às 20h é o melhor momento. Recomendo +2 atendentes nesses horários.',lucro:'Horários mais lucrativos: <strong>19h–21h</strong> com margem 31% e <strong>12h–13h</strong> com 28%. Evite promoções nesses horários.',margem:'Margem em <strong>26%</strong> — acima da média (18–22%). CMV em 35% é o principal custo. Reduza 3pp para ganhar +R$3.700/mês.',promover:'Promova <strong>X-Burguer Smash</strong> (margem 68%) e <strong>Combo Família</strong> (ticket R$127). Evite Salada César — margem 23% e alto desperdício.',cardápio:'Retire 3 itens com giro <5/semana e adicione uma opção fit — 34% dos seus clientes buscam isso nos concorrentes.',captar:'3 ações: 1) WhatsApp para inativos há 20+ dias (89 clientes). 2) Oferta para seguidores do Instagram. 3) Cashback duplo 14h–17h.',desperdício:'R$1.200/mês em desperdício de hortifruti. Compre em ciclos de 3 dias, padronize porções e gire o mussarela crítico em novos pratos.',estoque:'<strong>Queijo mussarela</strong> crítico — 8%. Pão (28%) e Tomate (18%) esgotam em 2 dias. Contate fornecedores hoje.',cliente:'1.284 clientes ativos, retorno 68%. Os 87 VIPs = 41% da receita. Estratégia: cashback para VIPs + reativação dos 245 inativos há 30 dias.'};
+function buildAura(){const chat=document.getElementById('aura-chat');if(!chat||chat.children.length>0)return;const badge=document.getElementById('badge-aura');if(badge)badge.style.display='none';const msg=document.createElement('div');msg.className='aura-msg';msg.innerHTML=`<div class="aura-tag">AURA AI · hoje</div><p>Olá! Analisei a operação de <strong>${brandName}</strong>:</p><div class="aura-insight"><span style="font-size:18px">⚠️</span><div><div class="aura-insight-val">Estoque crítico</div><div class="aura-insight-body">Mussarela acabando.</div></div></div><div class="aura-insight"><span style="font-size:18px">📈</span><div><div class="aura-insight-val">Pico 19h–21h</div><div class="aura-insight-body">Reforce a cozinha, +R$800/dia.</div></div></div><div class="aura-insight"><span style="font-size:18px">🗺️</span><div><div class="aura-insight-val">3 concorrentes fracos</div><div class="aura-insight-body">Campanha R$200 capta clientes.</div></div></div>`;chat.appendChild(msg);}
+function fillAura(q){nav(document.querySelector('[data-page=aura]'),'aura');setTimeout(()=>{const inp=document.getElementById('aura-in');if(inp){inp.value=q;inp.focus();}sendAura();},100);}
+function sendAura(){if(auraTyping)return;const inp=document.getElementById('aura-in'),q=(inp?inp.value.trim():'');if(!q)return;const chat=document.getElementById('aura-chat');if(!chat)return;const ub=document.createElement('div');ub.className='user-bubble';ub.innerHTML=`<span>${q}</span>`;chat.appendChild(ub);if(inp)inp.value='';auraTyping=true;const typing=document.createElement('div');typing.className='aura-msg';typing.innerHTML=`<div style="display:flex;gap:5px;padding:4px 0"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;chat.appendChild(typing);chat.scrollTop=chat.scrollHeight;const key=Object.keys(auraReplies).find(k=>q.toLowerCase().includes(k));const reply=key?auraReplies[key]:'Analisei <strong>'+brandName+'</strong>. Identifiquei oportunidades. Quer detalhes sobre financeiro, estoque, captação ou cardápio?';setTimeout(()=>{typing.remove();const ai=document.createElement('div');ai.className='aura-msg';ai.innerHTML=`<div class="aura-tag">AURA AI</div><p>${reply}</p>`;chat.appendChild(ai);chat.scrollTop=chat.scrollHeight;auraTyping=false;},800+Math.random()*400);}
+function clearAuraChat(){const c=document.getElementById('aura-chat');if(c){c.innerHTML='';buildAura();}showToast('✓ Chat limpo');}
+
+// ══════════════════════════════════════════
+// CONCORRENTES
+// ══════════════════════════════════════════
+function buildComp(){
+  const map=document.getElementById('comp-map');if(!map)return;
+  [{top:'28%',left:'38%',color:'#ef4444',name:'Burger Clássico · 3.4★ · 0.4km'},{top:'62%',left:'65%',color:'#f59e0b',name:'PizzaTop · 3.8★ · 0.9km'},{top:'42%',left:'25%',color:'#b0b0b8',name:'Lanche do Zé · 2.9★ · 0.6km'},{top:'22%',left:'68%',color:'#ef4444',name:'Casa do Sushi · 4.5★ · 1.2km'},{top:'72%',left:'42%',color:'#b0b0b8',name:'Churrascaria Nova · 3.1★ · 2.1km'}].forEach(p=>{const pin=document.createElement('div');pin.className='comp-pin';pin.style.top=p.top;pin.style.left=p.left;pin.innerHTML=`<div class="comp-pin-dot" style="background:${p.color}"></div><div class="comp-tip">${p.name}</div>`;pin.onclick=()=>showToast('📍 '+p.name);map.appendChild(pin);});
+  const cl=document.getElementById('comp-list');if(!cl)return;cl.innerHTML='';
+  [{emoji:'🔴',name:'Burger Clássico',type:'Hamburgueria · 0.4km',rating:'3.4★',badge:'Ameaça',cls:'b-low'},{emoji:'🟡',name:'PizzaTop',type:'Pizzaria · 0.9km',rating:'3.8★',badge:'Médio',cls:'b-low'},{emoji:'⚪',name:'Lanche do Zé',type:'Lanchonete · 0.6km',rating:'2.9★',badge:'Fraco',cls:'b-ok'},{emoji:'🔴',name:'Casa do Sushi',type:'Japonês · 1.2km',rating:'4.5★',badge:'Forte',cls:'b-crit'},{emoji:'⚪',name:'Churrascaria Nova',type:'Churrascaria · 2.1km',rating:'3.1★',badge:'Fraco',cls:'b-ok'}].forEach(c=>{const r=document.createElement('div');r.style.cssText='display:flex;align-items:center;gap:10px;padding:9px;border-radius:var(--r8);cursor:pointer;transition:background .15s';r.innerHTML=`<span style="font-size:16px">${c.emoji}</span><div style="flex:1"><div style="font-size:12px;font-weight:600">${c.name}</div><div style="font-size:10px;color:var(--g4)">${c.type}</div></div><div style="font-size:14px;font-weight:700">${c.rating}</div><span class="badge ${c.cls}">${c.badge}</span>`;r.onmouseover=()=>r.style.background='var(--g1)';r.onmouseout=()=>r.style.background='';r.onclick=()=>showToast('Análise: '+c.name+' · '+c.rating);cl.appendChild(r);});
+}
+function openExportRadarModal(){openModal(`<div class="modal-h">🗺️ Exportar radar</div><div class="modal-sub">Relatório da análise competitiva.</div><div class="alert a-info" style="margin-bottom:16px">📍 5 concorrentes · Raio 4km · ABC Paulista</div><div class="ob-grid" style="margin-bottom:16px"><div class="ob-opt sel" onclick="selOb(this)"><div class="ob-opt-icon">📄</div><div class="ob-opt-label">PDF</div></div><div class="ob-opt" onclick="selOb(this)"><div class="ob-opt-icon">📊</div><div class="ob-opt-label">Excel</div></div></div><button class="modal-btn green" onclick="closeModal();showToast('✓ Radar exportado!')">⬇️ Exportar</button>`);}
+
+// ══════════════════════════════════════════
+// NEW ORDER MODAL
+// ══════════════════════════════════════════
+function openNewOrderModal(){
+  nav(document.querySelector('[data-page=pedidos]'),'pedidos');
+  openModal(`<div class="modal-h">🧾 Novo pedido</div><div class="modal-sub">Adicione um pedido manual ao kanban.</div>
+    <label class="form-label">Itens</label><input class="form-input" id="no-items" placeholder="Ex: X-Burguer + Batata + Refri">
+    <label class="form-label">Valor total</label><input class="form-input" id="no-price" placeholder="Ex: 67,00">
+    <label class="form-label">Canal</label><select class="form-select" id="no-ch"><option value="ch-if">iFood</option><option value="ch-wh">WhatsApp</option><option value="ch-ms">Mesa</option></select>
+    <label class="form-label">Observações</label><input class="form-input" id="no-obs" placeholder="Sem cebola, bem passado...">
+    <button class="modal-btn green" onclick="confirmNewOrder()">✓ Adicionar ao kanban</button>`);
+}
+function confirmNewOrder(){
+  const items=document.getElementById('no-items').value.trim(),price=document.getElementById('no-price').value.trim(),ch=document.getElementById('no-ch').value,obs=document.getElementById('no-obs').value.trim();
+  if(!items){showToast('⚠️ Informe os itens!');return;}
+  const chL={'ch-if':'iFood','ch-wh':'WhatsApp','ch-ms':'Mesa'},num=4530+Math.floor(Math.random()*50);
+  closeModal();addKanbanOrder(num,items+(obs?' ('+obs+')':''),price?'R$'+price:'R$--',ch,chL[ch]);orderCount++;
+  showToast('✓ Pedido #'+num+' adicionado!');const b=document.getElementById('badge-pedidos');if(b)b.textContent=parseInt(b.textContent||0)+1;
+}
+
+// ══════════════════════════════════════════
+// ONBOARDING
+// ══════════════════════════════════════════
+let obStep=0,OB_TOTAL=4,obType='',obCity='',obRestName=brandName,obColor='#22c55e';
+function openOnboarding(){obStep=0;obType='';obCity='';openModal('');renderOb();}
+function renderOb(){
+  const stepsEl=document.getElementById('ob-steps-bar');
+  if(stepsEl){stepsEl.innerHTML='';for(let i=0;i<OB_TOTAL;i++){const s=document.createElement('div');s.className='ob-step'+(i<obStep?' done':i===obStep?' cur':'');stepsEl.appendChild(s);}}
+  const body=document.getElementById('ob-body');if(!body)return;
+  const cp=['#22c55e','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6'];
+  if(obStep===0){body.innerHTML=`<div class="aura-bubble-s"><div class="aura-av-s">A</div><div><div class="aura-bname">AURA AI</div><div class="aura-btext">Vou personalizar a plataforma para o seu negócio em 4 passos.</div></div></div><div class="modal-h">Tipo de negócio</div><div class="modal-sub">Personaliza módulos e relatórios.</div><div class="ob-grid"><div class="ob-opt" onclick="obType='Hamburgueria';selOb(this)"><div class="ob-opt-icon">🍔</div><div class="ob-opt-label">Hamburgueria</div></div><div class="ob-opt" onclick="obType='Pizzaria';selOb(this)"><div class="ob-opt-icon">🍕</div><div class="ob-opt-label">Pizzaria</div></div><div class="ob-opt" onclick="obType='Japonês';selOb(this)"><div class="ob-opt-icon">🍣</div><div class="ob-opt-label">Japonês</div></div><div class="ob-opt" onclick="obType='Restaurante';selOb(this)"><div class="ob-opt-icon">🍽️</div><div class="ob-opt-label">Restaurante</div></div></div><button class="modal-btn" onclick="obStep++;renderOb()">Continuar →</button><button class="modal-skip" onclick="closeModal()">Pular configuração</button>`;}
+  else if(obStep===1){body.innerHTML=`<div class="modal-h">Sua cidade</div><div class="modal-sub">Usamos para o radar de concorrentes.</div><div class="ob-grid"><div class="ob-opt" onclick="obCity='Santo André';selOb(this)"><div class="ob-opt-icon">🏙️</div><div class="ob-opt-label">Santo André</div></div><div class="ob-opt" onclick="obCity='São Bernardo';selOb(this)"><div class="ob-opt-icon">🌆</div><div class="ob-opt-label">São Bernardo</div></div><div class="ob-opt" onclick="obCity='São Caetano';selOb(this)"><div class="ob-opt-icon">🌇</div><div class="ob-opt-label">São Caetano</div></div><div class="ob-opt" onclick="obCity='Diadema';selOb(this)"><div class="ob-opt-icon">🏘️</div><div class="ob-opt-label">Diadema</div></div></div><button class="modal-btn" onclick="obStep++;renderOb()">Continuar →</button>`;}
+  else if(obStep===2){body.innerHTML=`<div class="modal-h">Personalize sua marca</div><div class="modal-sub">A plataforma se adapta à sua identidade.</div><input class="ob-input" id="ob-name-in" placeholder="@instagram ou nome" value="${obRestName}"><div style="font-size:11px;font-weight:700;color:var(--g5);text-transform:uppercase;margin-bottom:8px">Cor principal</div><div class="ob-colors">${cp.map(c=>`<div class="ob-color${c===obColor?' sel':''}" style="background:${c}" onclick="obPickColor('${c}',this)"></div>`).join('')}</div><button class="modal-btn" onclick="applyBrand()">Aplicar e continuar →</button>`;}
+  else{body.innerHTML=`<div class="aura-bubble-s"><div class="aura-av-s">A</div><div><div class="aura-bname">AURA AI</div><div class="aura-btext">Tudo pronto! 3 oportunidades identificadas para <strong>${obRestName}</strong>.</div></div></div><div class="modal-h">Pronto! 🎉</div><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px"><div class="alert a-ok">✅ Radar ativo${obCity?' em '+obCity:''} · 12 estabelecimentos</div><div class="alert a-info">🤖 AURA analisou o mercado local · 3 gaps</div><div class="alert a-warn">⚡ Ative iFood e WhatsApp nas configurações</div></div><button class="modal-btn green" onclick="finishOb()">Acessar a plataforma →</button>`;}
+}
+function selOb(el){el.closest('.ob-grid').querySelectorAll('.ob-opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+function obPickColor(c,el){obColor=c;document.querySelectorAll('.ob-color').forEach(s=>s.classList.remove('sel'));el.classList.add('sel');}
+function applyBrand(){const n=document.getElementById('ob-name-in');if(n&&n.value.trim())obRestName=n.value.trim();if(obRestName){brandName=obRestName;document.getElementById('sb-name').textContent=brandName;document.getElementById('sb-uname').textContent=brandName;const ml=document.getElementById('map-you-label');if(ml)ml.textContent=brandName;const init=brandName.replace('@','').substring(0,2).toUpperCase();document.getElementById('sb-av').textContent=init;document.getElementById('sb-bigav').textContent=init;}obStep++;renderOb();}
+function finishOb(){closeModal();showToast('✓ Bem-vindo, '+brandName+' 🎉');}
+
+// ══════════════════════════════════════════
+// MODAL ENGINE
+// ══════════════════════════════════════════
+function openModal(html){
+  let ov=document.getElementById('modal-overlay');
+  if(!ov){ov=document.createElement('div');ov.id='modal-overlay';ov.className='modal-overlay';ov.innerHTML=`<div class="modal-box"><button class="modal-close" onclick="closeModal()">✕</button><div class="ob-steps" id="ob-steps-bar" style="display:flex;gap:5px;margin-bottom:0"></div><div id="ob-body"></div></div>`;ov.onclick=e=>{if(e.target===ov)closeModal();};document.body.appendChild(ov);}
+  document.getElementById('ob-steps-bar').innerHTML='';
+  document.getElementById('ob-body').innerHTML=html;
+  ov.style.display='flex';
+}
+function closeModal(){const ov=document.getElementById('modal-overlay');if(ov)ov.style.display='none';}
+
+function openConfirmModal(title,msg,btnLabel,btnClass,onConfirm){
+  openModal(`<div class="modal-h">${title}</div><div class="confirm-danger">${msg}</div><button class="modal-btn ${btnClass}" onclick="(${onConfirm.toString()})();closeModal()">${btnLabel}</button><button class="modal-skip" onclick="closeModal()">Cancelar</button>`);
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+let toastT;
+function showToast(msg){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  if(toastT)clearTimeout(toastT);
+  const t=document.createElement('div');t.className='toast';
+  t.innerHTML=`<span class="toast-dot"></span><span style="flex:1">${msg}</span><button class="toast-close" onclick="this.closest('.toast').remove()">✕</button>`;
+  document.body.appendChild(t);
+  toastT=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(10px) scale(.95)';t.style.transition='all .3s';setTimeout(()=>t.remove(),300);},3200);
+}
+
+// ══════════════════════════════════════════
+// BOOT — check session
+// ══════════════════════════════════════════
+(function boot(){
+  const session=loadSession();
+  if(session){
+    const u=users.find(x=>x.id===session.id);
+    if(u){currentUser=u;enterApp(u);return;}
+  }
+  // show login
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-user').focus();
+  // press enter on login field
+  document.getElementById('login-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-pass').focus();});
+})();
+</script>
+</body>
+</html>
